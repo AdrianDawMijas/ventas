@@ -11,6 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -146,6 +149,32 @@ public class JDBCTemplateTests {
 
 	}
 
+	/*
+CREATE PROCEDURE read_cliente (
+	IN in_id INTEGER,
+	OUT out_nombre VARCHAR(100),
+	OUT out_apellidos VARCHAR(100),
+	OUT out_categoria INTEGER)
+BEGIN
+	SELECT nombre, concat(apellido1, apellido2), categoría
+	INTO out_nombre, out_apellidos, out_categoria
+	FROM cliente where id = in_id;
+END;
+	 */
+	@Test
+	void callProcedureSimpleJdbcCall() {
+
+		SimpleJdbcCall sJdbcCall = new SimpleJdbcCall(jdbcTemplate)
+				.withProcedureName("read_cliente");
+
+		int id = 1;
+		SqlParameterSource in = new MapSqlParameterSource()
+				.addValue("in_id", id);
+
+		Map<String, Object> out = sJdbcCall.execute(in);
+		System.out.println(out);
+	}
+
 	@Test
 	void update() {
 
@@ -264,8 +293,15 @@ public class JDBCTemplateTests {
 
 	}
 
+	//A realizar por el alumno...
 	@Test
 	void findByNombre() {
+		String nombre = "";
+		//TODO
+	}
+
+	@Test
+	void findByNombreButNotFound() {
 		String nombre = "";
 		//TODO
 	}
@@ -278,6 +314,14 @@ public class JDBCTemplateTests {
 	}
 
 	void findClienteByNombreContainingAndApellido1Containing() {
+		String nombreContaining = "";
+		String apellido1Containing = "";
+		//TODO
+
+
+	}
+
+	void findClienteByNombreContainingAndApellido1ContainingButNotFound() {
 		String nombreContaining = "";
 		String apellido1Containing = "";
 		//TODO
