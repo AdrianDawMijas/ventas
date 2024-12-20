@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
@@ -266,7 +267,7 @@ END;
 
 		List<Cliente> listCli = jdbcTemplate.query("""
 				SELECT * FROM cliente
-				""", (rs, rowNum) -> UtilDAO.buildCliente(rs)
+				""", BeanPropertyRowMapper.newInstance(Cliente.class)
 					);
 
 		listCli.forEach(System.out::println);
