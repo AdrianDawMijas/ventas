@@ -37,7 +37,7 @@ class VentasSbApplicationTests {
                 .apellido1("Martín")
                 .apellido2("Tejero")
                 .ciudad("Málaga")
-                .categoría(1)
+                .categoria(1)
                 .build();
 
         cliDAOTemplate.create(cliente1);
@@ -47,7 +47,7 @@ class VentasSbApplicationTests {
                 .apellido1("Pérez")
                 .apellido2("García")
                 .ciudad("Granada")
-                .categoría(2)
+                .categoria(2)
                 .build();
 
         cliDAOClient.create(cliente2);

@@ -54,7 +54,7 @@ public class ClienteDAOJDBCTemplateImpl implements ClienteDAO {
             ps.setString(idx++, cliente.getApellido1());
             ps.setString(idx++, cliente.getApellido2());
             ps.setString(idx++, cliente.getCiudad());
-            ps.setInt(idx, cliente.getCategoría());
+            ps.setInt(idx, cliente.getCategoria());
             return ps;
         };
 
@@ -78,7 +78,7 @@ public class ClienteDAOJDBCTemplateImpl implements ClienteDAO {
                                                                 .apellido1(rs.getString("apellido1"))
                                                                 .apellido2(rs.getString("apellido2"))
                                                                 .apellido2(rs.getString("apellido2"))
-                                                                .categoría(rs.getInt("categoría"))
+                                                                .categoria(rs.getInt("categoría"))
                                                                 .ciudad(rs.getString("ciudad"))
                                                                 .build();
 
@@ -121,7 +121,7 @@ public class ClienteDAOJDBCTemplateImpl implements ClienteDAO {
                         .apellido1(rs.getString("apellido1"))
                         .apellido2(rs.getString("apellido2"))
                         .apellido2(rs.getString("apellido2"))
-                        .categoría(rs.getInt("categoría"))
+                        .categoria(rs.getInt("categoría"))
                         .ciudad(rs.getString("ciudad"))
                         .build();
             } else {
@@ -156,7 +156,7 @@ public class ClienteDAOJDBCTemplateImpl implements ClienteDAO {
                 , cliente.getApellido1()
                 , cliente.getApellido2()
                 , cliente.getCiudad()
-                , cliente.getCategoría()
+                , cliente.getCategoria()
                 , cliente.getId());
 
         log.info("Update de Cliente con {} registros actualizados.", rows);

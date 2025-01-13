@@ -34,7 +34,7 @@ public class ClienteDAOJDBCClientImpl implements ClienteDAO{
                 .param(cliente.getApellido1())
                 .param(cliente.getApellido2())
                 .param(cliente.getCiudad())
-                .param(cliente.getCategoría())
+                .param(cliente.getCategoria())
                 .update(keyHolder);
 
         cliente.setId(keyHolder.getKey().intValue());

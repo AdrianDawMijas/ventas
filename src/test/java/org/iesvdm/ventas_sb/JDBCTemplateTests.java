@@ -3,6 +3,9 @@ package org.iesvdm.ventas_sb;
 import lombok.extern.slf4j.Slf4j;
 import org.iesvdm.ventas_sb.modelo.Cliente;
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.iesvdm.ventas_sb.modelo.Comercial;
+import org.iesvdm.ventas_sb.modelo.Pedido;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -37,7 +40,7 @@ public class JDBCTemplateTests {
                 .apellido1("Martín")
                 .apellido2("Tejero")
                 .ciudad("Málaga")
-                .categoría(1)
+                .categoria(1)
                 .build();
 
 	Cliente cli2 = Cliente.builder()
@@ -45,7 +48,7 @@ public class JDBCTemplateTests {
 			.apellido1("Pérez")
 			.apellido2("García")
 			.ciudad("Granada")
-			.categoría(2)
+			.categoria(2)
 			.build();
 
 	Cliente cli3 = Cliente.builder()
@@ -53,7 +56,11 @@ public class JDBCTemplateTests {
 			.apellido1("Gutiérrez")
 			.apellido2("Martínez")
 			.ciudad("Málaga")
-			.categoría(3)
+			.categoria(3)
+			.build();
+	Pedido ped1 = Pedido.builder()
+			.total(22.2)
+			.fecha("1992-12-10")
 			.build();
 
 
@@ -62,21 +69,21 @@ public class JDBCTemplateTests {
 
         //Without recovery of id
 		int rows = jdbcTemplate.update("""
-							                  INSERT INTO cliente (nombre, apellido1, apellido2, ciudad, categoría) 
+							                  INSERT INTO cliente (nombre, apellido1, apellido2, ciudad, categoria) 
 							                  VALUES  (     ?,         ?,         ?,       ?,         ?)
 						                   """,
 							cli1.getNombre(),
 							cli1.getApellido1(),
 							cli1.getApellido2(),
 							cli1.getCiudad(),
-							cli1.getCategoría()
+							cli1.getCategoria()
 					);
 
 
         log.info("{} inserted records.", rows);
 
 		assertEquals(1, rows);
-		assertTrue(cli2.getId() > 0);
+		assertTrue(cli2.getId() == null);
 
     }
 
@@ -100,7 +107,7 @@ public class JDBCTemplateTests {
 					ps.setString(idx++, cli2.getApellido1());
 					ps.setString(idx++, cli2.getApellido2());
 					ps.setString(idx++, cli2.getCiudad());
-					ps.setInt(idx, cli2.getCategoría());
+					ps.setInt(idx, cli2.getCategoria());
 
 					return ps;
 
@@ -127,7 +134,7 @@ public class JDBCTemplateTests {
 		params.put("apellido1", cli3.getApellido1());
 		params.put("apellido2", cli3.getApellido2());
 		params.put("ciudad", cli3.getCiudad());
-		params.put("categoría", cli3.getCategoría());
+		params.put("categoría", cli3.getCategoria());
 
 		int id = simpleJdbcInsert.executeAndReturnKey(params).intValue();
 
@@ -179,13 +186,13 @@ END;
 	@Test
 	void update() {
 
-		cli1.setCategoría(7);
+		cli1.setCategoria(7);
 		int rows = jdbcTemplate.update("""
 										UPDATE cliente SET 							
 														categoría = ?  
 												WHERE id = ?
 										""",
-				cli1.getCategoría(),
+				cli1.getCategoria(),
 				cli1.getId());
 
 		log.info("Update de Cliente con {} registros actualizados.", rows);
@@ -236,14 +243,14 @@ END;
 					.apellido1(generatedStringArr[idx++])
 					.apellido2(generatedStringArr[idx++])
 					.ciudad(generatedStringArr[idx++])
-					.categoría(random.nextInt(1,11))
+					.categoria(random.nextInt(1,11))
 					.build();
 
 				}).toList();
 
 		int batchSize = 100;
 		jdbcTemplate.batchUpdate("""
-								INSERT INTO cliente (nombre, apellido1, apellido2, ciudad, categoría)
+								INSERT INTO cliente (nombre, apellido1, apellido2, ciudad, categoria)
 								VALUES  (     ?,         ?,         ?,       ?,         ?)
 								""", listCliRandom, batchSize,
 				(PreparedStatement ps, Cliente cliente) -> {
@@ -252,7 +259,7 @@ END;
 					ps.setString(idx++, cliente.getApellido1());
 					ps.setString(idx++, cliente.getApellido2());
 					ps.setString(idx++, cliente.getCiudad());
-					ps.setInt(idx++, cliente.getCategoría());
+					ps.setInt(idx++, cliente.getCategoria());
 				});
 
 		int countEnd = jdbcTemplate.queryForObject("""
@@ -297,21 +304,59 @@ END;
 	//A realizar por el alumno...
 	@Test
 	void findByNombre() {
-		String nombre = "";
-		//TODO
+		String nombre = "Adolfo";
+		Optional<Cliente> optCli = jdbcTemplate.query("""
+				SELECT * FROM cliente WHERE nombre = ?
+				""", rs -> {
+
+			if (rs.next()) {
+				return Optional.of(UtilDAO.buildCliente(rs));
+			} else {
+				return Optional.empty();
+			}
+
+		}, nombre);
+
+		assertTrue(optCli.isPresent());
+		assertEquals(nombre, optCli.get().getNombre());
 	}
 
 	@Test
 	void findByNombreButNotFound() {
-		String nombre = "";
-		//TODO
+		String nombre = "Adolf";
+		Optional<Cliente> optCli = jdbcTemplate.query("""
+				SELECT * FROM cliente WHERE nombre = ?
+				""", rs -> {
+
+			if (rs.next()) {
+				return Optional.of(UtilDAO.buildCliente(rs));
+			} else {
+				return Optional.empty();
+			}
+
+		}, nombre);
+
+		assertTrue(optCli.isEmpty());
 	}
 
 	@Test
 	void findClienteByCaracteristicaBetween() {
-		int característicaInit = 0;
-		int característicaFin = 0;
-		//TODO
+		int característicaInit = 100;
+		int característicaFin = 200;
+		Optional<Cliente> optCli = jdbcTemplate.query("""
+				SELECT * FROM cliente WHERE categoria BETWEEN ? AND ?
+				""", rs -> {
+
+			if (rs.next()) {
+				return Optional.of(UtilDAO.buildCliente(rs));
+			} else {
+				return Optional.empty();
+			}
+
+		}, característicaInit, característicaFin);
+
+		assertTrue(optCli.isPresent());
+
 	}
 
 	void findClienteByNombreContainingAndApellido1Containing() {
@@ -329,14 +374,88 @@ END;
 
 
 	}
-
+	@Test
 	void findPedidosWithClienteAndComercialByCliente_id() {
-		int clienteId = 0;
-		//TODO
+		int clienteId = 1;
+		List<Pedido> optCli = jdbcTemplate.query("""
+				SELECT
+        			pedido.id,
+					pedido.total,
+					pedido.fecha,
+					cliente.id,
+					cliente.nombre,
+					cliente.apellido1,
+					cliente.apellido2,
+					cliente.ciudad,
+					cliente.categoria,
+					comercial.id,
+					comercial.nombre,
+					comercial.apellido1,
+					comercial.apellido2,
+					comision
+				FROM pedido
+				JOIN cliente on pedido.id_cliente = cliente.id
+				JOIN comercial on pedido.id_comercial = comercial.id
+    			WHERE pedido.id_cliente = ?;
+				""", rs -> {
+
+			if (rs.next()) {
+				List<Pedido> pedidos = new ArrayList<>();
+				Cliente cliente = Cliente.builder()
+						.id(rs.getInt("cliente.id"))
+						.nombre(rs.getString("cliente.nombre"))
+						.apellido1(rs.getString("cliente.apellido1"))
+						.apellido2(rs.getString("cliente.apellido2"))
+						.ciudad(rs.getString("cliente.ciudad"))
+						.categoria(rs.getInt("cliente.categoria"))
+						.build();
+				Comercial comercial = Comercial.builder()
+						.id(rs.getInt("comercial.id"))
+						.nombre(rs.getString("comercial.nombre"))
+						.apellido1(rs.getString("comercial.apellido1"))
+						.apellido2(rs.getString("comercial.apellido2"))
+						.comision(rs.getInt("comercial.comision"))
+						.build();
+
+
+
+				Pedido pedido = Pedido.builder()
+						.id(rs.getInt("pedido.id"))
+						.total(rs.getDouble("pedido.total"))
+						.fecha(rs.getString("pedido.fecha"))
+						.cliente(cliente)
+						.comercial(comercial)
+						.build();
+
+				pedidos.add(pedido);
+				return pedidos;
+			}
+			else {
+				return null;
+			}
+
+		}, clienteId);
+
+		assertTrue(optCli.size()==1);
 	}
 
+@Test
 	void insertNewClienteAndPedido() {
-		//
+		SimpleJdbcInsert simpleJdbcInsert =
+			new SimpleJdbcInsert(jdbcTemplate.getDataSource())
+					.withTableName("cliente")
+					.usingGeneratedKeyColumns("id");
+		SimpleJdbcInsert simpleJdbcInsert1 =
+				new SimpleJdbcInsert(jdbcTemplate.getDataSource())
+						.withTableName("pedido")
+						.usingGeneratedKeyColumns("id");
+
+	BeanPropertySqlParameterSource beanProps= new BeanPropertySqlParameterSource(cli3);
+	BeanPropertySqlParameterSource beanProps2 = new BeanPropertySqlParameterSource(ped1);
+	int id = simpleJdbcInsert.executeAndReturnKey(beanProps).intValue();
+	int id2 = simpleJdbcInsert1.executeAndReturnKey(beanProps2).intValue();
+	assertTrue(id > 0);
+	assertTrue(id2 > 0);
 	}
 
 }

@@ -14,7 +14,7 @@ public class UtilDAO {
                 .apellido1(rs.getString("apellido1"))
                 .apellido2(rs.getString("apellido2"))
                 .ciudad(rs.getString("ciudad"))
-                .categoría(rs.getInt("categoría"))
+                .categoria(rs.getInt("categoría"))
                 .build();
     }
 

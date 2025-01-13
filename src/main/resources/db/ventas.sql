@@ -8,7 +8,7 @@ CREATE TABLE cliente (
                          apellido1 VARCHAR(100) NOT NULL,
                          apellido2 VARCHAR(100),
                          ciudad VARCHAR(100),
-                         categoría INT UNSIGNED
+                         categoria INT UNSIGNED
 );
 
 CREATE TABLE comercial (
@@ -16,7 +16,7 @@ CREATE TABLE comercial (
                            nombre VARCHAR(100) NOT NULL,
                            apellido1 VARCHAR(100) NOT NULL,
                            apellido2 VARCHAR(100),
-                           comisión FLOAT
+                           comision FLOAT
 );
 
 CREATE TABLE pedido (
@@ -66,3 +66,96 @@ INSERT INTO pedido VALUES(13, 545.75, '2019-01-25', 6, 1);
 INSERT INTO pedido VALUES(14, 145.82, '2017-02-02', 6, 1);
 INSERT INTO pedido VALUES(15, 370.85, '2019-03-11', 1, 5);
 INSERT INTO pedido VALUES(16, 2389.23, '2019-03-11', 1, 5);
+
+
+SELECT
+    pedido.id,
+    pedido.total,
+    pedido.fecha,
+    cliente.id,
+    cliente.nombre,
+    cliente.apellido1,
+    cliente.apellido2,
+    cliente.ciudad,
+    cliente.categoria,
+    comercial.id,
+    comercial.nombre,
+    comercial.apellido1,
+    comercial.apellido2,
+    comision
+FROM pedido
+         JOIN cliente on pedido.id_cliente = cliente.id
+         JOIN comercial on pedido.id_comercial = comercial.id
+WHERE pedido.id_cliente = 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
