@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
-public class ComercialDAOJDBCImpl implements ComercialDAO{
+public class ComercialDAOJDBCClientImpl implements ComercialDAO{
 
     @Autowired
     private JdbcClient jdbcClient;

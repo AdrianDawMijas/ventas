@@ -1,8 +1,7 @@
 package org.iesvdm.ventas_sb;
 
 import lombok.extern.slf4j.Slf4j;
-import org.iesvdm.ventas_sb.dao.ComercialDAO;
-import org.iesvdm.ventas_sb.dao.ComercialDAOJDBCImpl;
+import org.iesvdm.ventas_sb.dao.ComercialDAOJDBCClientImpl;
 import org.iesvdm.ventas_sb.modelo.Comercial;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -16,7 +15,7 @@ import java.util.Optional;
 public class VentasSbApplication implements CommandLineRunner {
 
     @Autowired
-    private ComercialDAOJDBCImpl comercialDAO;
+    private ComercialDAOJDBCClientImpl comercialDAO;
 
     public static void main(String[] args) {
         SpringApplication.run(VentasSbApplication.class, args);

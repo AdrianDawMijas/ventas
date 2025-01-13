@@ -1,13 +1,16 @@
 package org.iesvdm.ventas_sb;
 
 import lombok.extern.slf4j.Slf4j;
+import org.iesvdm.ventas_sb.dao.ClienteDAOJDBCClientImpl;
 import org.iesvdm.ventas_sb.modelo.Cliente;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -54,6 +57,8 @@ public class JDBCClientTests {
             .ciudad("Málaga")
             .categoria(3)
             .build();
+    @Autowired
+    private ClienteDAOJDBCClientImpl clienteDAOJDBCClientImpl;
 
 
     @Test
@@ -96,7 +101,14 @@ public class JDBCClientTests {
 
     @Test
     void delete() {
+        int id = 10;
+        int rowsUpdated = jdbcClient.sql("DELETE FROM cliente WHERE id = ?")
+                .param(id)
+                .update();
 
+        log.info("Delete de Cliente con {} registros actualizados.", rowsUpdated);
+
+        assertEquals(1, rowsUpdated);
     }
 
 
@@ -107,34 +119,83 @@ public class JDBCClientTests {
 
     @Test
     void getAll() {
+        var query = """
+				SELECT * FROM cliente
+				""";
+        RowMapper<Cliente> rowMapperCliente = (rs, rowNum) -> new Cliente(rs.getInt("id"),
+                rs.getString("nombre"),
+                rs.getString("apellido1"),
+                rs.getString("apellido2"),
+                rs.getString("ciudad"),
+                rs.getInt("categoría")
+        );
 
+        List<Cliente> listCli = jdbcClient.sql(query)
+                .query(rowMapperCliente)
+                .list();
+
+        listCli.forEach(System.out::println);
     }
 
     @Test
     void findById() {
         int idToFind = 1;
-        //TODO
+        String query = """
+                SELECT * FROM cliente WHERE ID = :id
+                """;
+
+        Optional<Cliente> optCliente = jdbcClient.sql(query)
+                .param("id", idToFind)
+                .query(Cliente.class)
+                .optional();
+
+        assertTrue(optCliente.isPresent());
+        assertEquals(idToFind, optCliente.get().getId());
 
     }
 
     //A realizar por el alumno...
     @Test
     void findByNombre() {
-        String nombre = "";
-        //TODO
+        String nombre = "Adolfo";
+        String query = """
+                SELECT * FROM cliente WHERE nombre = :nombre
+                """;
+
+        Optional<Cliente> optCliente = jdbcClient.sql(query)
+                .param("nombre", nombre)
+                .query(Cliente.class)
+                .optional();
+
+        assertTrue(optCliente.isPresent());
+        assertEquals(nombre, optCliente.get().getNombre());
     }
 
     @Test
     void findByNombreButNotFound() {
-        String nombre = "";
-        //TODO
+        String nombre = "Adolf";
+        String query = """
+                SELECT * FROM cliente WHERE nombre = :nombre
+                """;
+
+        Optional<Cliente> optCliente = jdbcClient.sql(query)
+                .param("nombre", nombre)
+                .query(Cliente.class)
+                .optional();
+
+        assertTrue(optCliente.isEmpty());
     }
 
     @Test
     void findClienteByCaracteristicaBetween() {
-        int característicaInit = 0;
-        int característicaFin = 0;
-        //TODO
+        int caracteristicaInit = 0;
+        int característicaFin = 200;
+        var query = jdbcClient.sql("""
+                SELECT * FROM cliente WHERE categoria BETWEEN ? AND ?
+                """).param(caracteristicaInit).param(característicaFin)
+                .query(Cliente.class).list();
+
+        assertTrue(!query.isEmpty());
     }
 
     void findClienteByNombreContainingAndApellido1Containing() {
